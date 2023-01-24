@@ -1,4 +1,4 @@
--- creazione tabella 
+-- new table 
 select * 
 into bianchi 
 from vini_tan;
@@ -6,28 +6,28 @@ from vini_tan;
 select * from bianchi;
 
 --------------------------------------------------------------------------------------------------------------------------------
--- pulizia dati
+-- data cleaning
 --------------------------------------------------------------------------------------------------------------------------------
 
--- colonna annata
+-- annata
 
 select annata, count(*)
 from bianchi
 group by annata
 order by count(*) desc;
 
--- rimozione null e NV
+-- null and NV removal
 delete from bianchi
 where annata isnull or annata = 'NV' or annata = '';
 
--- conversione in numeric
+-- numeric conversion
 alter table bianchi
 alter annata type numeric using annata::numeric;
 --------------------------------------------------------------------------------------------------------------------------------
 
--- colonna denominazione
+-- denominazione
 
--- conversione in minuscolo
+-- lowercase conversion
 update bianchi
 set denominazione = lower(denominazione);
 
@@ -37,22 +37,22 @@ from bianchi
 group by denominazione
 order by count(*) desc;
 
--- rimozione null 
+-- null removal 
 delete from bianchi 
 where denominazione isnull;
 
--- rimozione luogo
+-- place removal
 update bianchi
 set denominazione = split_part(denominazione, ' ', -1);
 
--- rimozione denominazioni errate
+-- wrong denomination removal
 delete from bianchi 
 where denominazione not in('doc', 'igt', 'docg', 'igp', 'dop');
 --------------------------------------------------------------------------------------------------------------------------------
 
--- colonna vitigni
+-- vitigni
 
--- conversione in minuscolo
+-- lowercase conversion
 update bianchi
 set vitigni = lower(vitigni);
 
@@ -62,19 +62,19 @@ from bianchi
 group by vitigni
 order by count(*) desc;
 
--- selezione del primo vitigno (vitigo con % più elevata ed esclusa categoria interna, es. pinot bianco e grigio riuniti in pinot)
+-- Selection of the first grape variety (example: white and gray pinot = pinot)
 update bianchi
 set vitigni = split_part(vitigni, ' ', 1);
 
--- rimozione virgole
+-- commas removal
 update bianchi
 set vitigni = replace(vitigni, ',', '');
 
--- rimozione null 
+-- null removal 
 delete from bianchi 
 where vitigni isnull;
 
--- raggruppamento vitigni oltre la 20° posizione per frequenza
+-- Grape varieties grouping over the 20th position by frequency
 with cte_vitigni as(
 	select vitigni, count(*)
 	from bianchi
@@ -88,9 +88,9 @@ set vitigni = 'altri'
 where vitigni not in(select vitigni from cte_vitigni);
 --------------------------------------------------------------------------------------------------------------------------------
 
--- colonna alcol
+-- alcol
 
--- rimozione simbolo %
+-- % symbol removal
 update bianchi
 set alcol = replace(alcol, '%', '');
 
@@ -100,120 +100,120 @@ from bianchi
 group by alcol
 order by count(*) desc;
 
--- rimozione null 
+-- null removal 
 delete from bianchi 
 where alcol = '';
 
--- conversione in numeric
+-- numeric conversion
 alter table bianchi
 alter alcol type numeric using alcol::numeric; 
 
--- utilizzo media per rimpiazzare null
+-- mean to replace null
 update bianchi
 set alcol = (select avg(alcol) from bianchi)
 where alcol isnull;
 --------------------------------------------------------------------------------------------------------------------------------
 
--- colonna allergeni
+-- allergeni
 
 select allergeni, count(*)
 from bianchi
 group by allergeni
 order by count(*) desc;
 
--- rimozione colonna inutile
+-- column removal
 alter table bianchi
 drop allergeni;
 --------------------------------------------------------------------------------------------------------------------------------
 
--- colonna consumo_ideale
+-- consumo_ideale
 
 select consumo_ideale, count(*)
 from bianchi
 group by consumo_ideale
 order by count(*) desc;
 
--- sostituzione dati errati
+-- wrong data replacement
 update bianchi
 set consumo_ideale = null
 where consumo_ideale like '%20224%' or consumo_ideale like '%2''24%';
 
--- rimozione null 
+-- null removal 
 delete from bianchi 
 where consumo_ideale = '' or consumo_ideale isnull;
 --------------------------------------------------------------------------------------------------------------------------------
 
--- colonna temperatura_servizio
+-- temperatura_servizio
 
 select temperatura_servizio, count(*)
 from bianchi
 group by temperatura_servizio
 order by count(*) desc;
 
--- rimozione simbolo °C
+-- °C symbol removal
 update bianchi
 set temperatura_servizio = replace(temperatura_servizio, '°C', '');
 
--- rimozione null 
+-- null removal 
 delete from bianchi 
 where temperatura_servizio = '';
 
--- sostituzione con media degli stessi (es. 8/10 diventa 9)
+-- mean replacement
 update bianchi
 set temperatura_servizio = (
 	(cast(split_part(temperatura_servizio, '/', 1) as numeric)) + (cast(split_part(temperatura_servizio, '/', 2) as numeric))/2);
 
--- arrotondamento
+-- rounding
 update bianchi
 set temperatura_servizio = round(cast(temperatura_servizio as numeric), 0);
 
--- conversione in numeric
+-- numeric conversion
 alter table bianchi
 alter temperatura_servizio type numeric using temperatura_servizio::numeric;
 
--- utilizzo media per rimpiazzare null
+-- mean to replace null
 update bianchi
 set temperatura_servizio = (select round(avg(temperatura_servizio), 0) from bianchi)
 where temperatura_servizio isnull;
 --------------------------------------------------------------------------------------------------------------------------------
 
--- colonna abbinamenti
+-- abbinamenti
 
 select abbinamenti, count(*)
 from bianchi
 group by abbinamenti
 order by count(*) desc;
 
--- selezione del primo abbinamento senza categoria
+-- Selecting the first match without category
 update bianchi
 set abbinamenti = split_part(abbinamenti, ' ', 1);
 
--- conversione in minuscolo
+-- lowercase conversion
 update bianchi
 set abbinamenti = lower(abbinamenti);
 
--- raggruppamento abbianmenti specifici
+-- grouping specific pairings
 update bianchi
 set abbinamenti = 'altri'
 where abbinamenti not in('antipasti', 'primi', 'secondi');
 
--- utilizzo moda per rimpiazzare null
+-- mode to replace null
 update bianchi
 set abbinamenti = 'antipasti'
 where abbinamenti isnull;
 --------------------------------------------------------------------------------------------------------------------------------
 
--- colonna prezzo
+-- prezzo
 
--- rimozione simbolo €
+-- € symbol removal
 update bianchi
 set prezzo = replace(prezzo, ' €', '');
 
--- sostituzione virgola con punto
+-- replacing , with .
 update bianchi
 set prezzo = replace(prezzo, ',', '.');
 
--- conversione in numeric
+-- numeric conversion
 alter table bianchi
 alter prezzo type numeric using prezzo::numeric;
 
