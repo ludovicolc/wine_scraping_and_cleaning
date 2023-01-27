@@ -1,6 +1,10 @@
 This project scrapes wine data from an italian website and uses SQL to clean and organize the data.
 
-Here's a brief description of the collected data:
+This is an example of raw data:
+![Immagine 2023-01-27 095245](https://user-images.githubusercontent.com/105851039/215046621-6b846cd0-176a-49ae-b554-99c220a7e5a9.png)
+
+
+Brief description of the collected data:
 * annata (vintage): year in which the grapes were grown and harvested that were used to make a specific wine.
 * denominazione (provenience)
 * vitigni (Vines): pure or mixed
@@ -10,6 +14,7 @@ Here's a brief description of the collected data:
 * temperatura servizio (Serving temperature): Celsius
 * abbinamenti (pairings): entrees, meat, fish, cheese... 
 * prezzo (price): euro
+
 
 
 The final data is stored in a PostgreSQL database and can be used for various wine-related analysis and projects.
