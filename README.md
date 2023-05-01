@@ -1,8 +1,7 @@
 # Projects objective
-This project scrapes wine data from an italian website and uses SQL to clean and organize the data.
-The final data is stored in a PostgreSQL database and can be used for various wine-related analysis and projects.
+The objective of this project is to gather wine data from an Italian website, clean and organize it using SQL, and store the final data in a PostgreSQL database. The resulting dataset can be used for various wine-related analysis and projects.
 
-## Data
+# Data
 This is an example of raw data:
 
 ![Immagine 2023-01-27 095245](https://user-images.githubusercontent.com/105851039/215046621-6b846cd0-176a-49ae-b554-99c220a7e5a9.png)
