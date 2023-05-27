@@ -1,5 +1,5 @@
 # Projects objective
-The objective of this project is to gather wine data from an Italian website, clean and organize it using SQL, and store the final data in a PostgreSQL database. The resulting dataset can be used for various wine-related analysis and projects.
+The objective of this project is to gather wine data from an Italian website, clean and organize it using Python and SQL, and store the final data in a PostgreSQL database. The resulting dataset can be used for various wine-related analysis and projects.
 
 # Data
 This is an example of raw data:
