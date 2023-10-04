@@ -221,3 +221,53 @@ alter prezzo type numeric using prezzo::numeric;
 --------------------------------------------------------------------------------------------------------------------------------
 
 select * from bianchi;
+
+--------------------------------------------------------------------------------------------------------------------------------
+-- deep data exploration
+--------------------------------------------------------------------------------------------------------------------------------
+
+-- 3 most expensive vines by provenience
+SELECT *
+FROM
+(SELECT denominazione, vitigni, prezzo,
+ row_number() OVER (partition by denominazione ORDER BY prezzo DESC) as vine_order
+from bianchi) as new
+where new.vine_order < 4;
+
+-- avg. price per provenience by vintage
+SELECT annata, denominazione, 
+round(AVG(prezzo), 2) as avg_price
+from bianchi
+GROUP BY annata, denominazione
+ORDER BY annata DESC, denominazione;
+
+-- max/min/avg difference between vintage and Ideal consumption by provenience
+SELECT denominazione,
+round(avg(difference), 1) as avg_difference,
+max(difference) as max_difference,
+min(difference) as min_difference
+FROM
+(SELECT denominazione,
+split_part(consumo_ideale, '/', 2)::NUMERIC - annata as difference
+from bianchi
+WHERE split_part(consumo_ideale, '/', 2) != '') as new
+GROUP BY denominazione
+ORDER BY avg_difference DESC;
+
+-- provenience cumulative production by vintage
+SELECT denominazione, annata,
+sum(count) OVER (partition by denominazione ORDER by annata ASC) as cum_production
+FROM
+(SELECT denominazione, annata, COUNT(annata) as count
+from bianchi
+GROUP BY denominazione, annata
+ORDER BY denominazione, annata) as new
+
+-- price percentile and price percentile range
+SELECT percentile, MAX(prezzo) as max,  min(prezzo) as min, (MAX(prezzo) - min(prezzo)) as perc_range
+FROM
+(SELECT prezzo,
+ntile(4) OVER (order by prezzo desc) as percentile
+from bianchi) as new
+GROUP BY percentile
+ORDER BY percentile
