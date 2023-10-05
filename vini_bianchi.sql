@@ -223,8 +223,48 @@ alter prezzo type numeric using prezzo::numeric;
 select * from bianchi;
 
 --------------------------------------------------------------------------------------------------------------------------------
--- deep data exploration
+-- data analysis
 --------------------------------------------------------------------------------------------------------------------------------
+
+-- min/max/avg numeric columns by vintage
+SELECT annata, 
+min(alcol) as min_alcohol, max(alcol) as max_alcohol, round(avg(alcol), 2) as avg_alcohol,
+min(temperatura_servizio) as min_serving_temperature, max(temperatura_servizio) as max_serving_temperature, round(avg(temperatura_servizio), 2) as avg_serving_temperature,
+min(prezzo) as min_price, max(prezzo) as max_price, round(avg(prezzo), 2) as avg_price
+from bianchi
+GROUP by annata
+order by annata DESC;
+
+-- min/max/avg numeric columns by provenience
+SELECT denominazione, 
+min(alcol) as min_alcohol, max(alcol) as max_alcohol, round(avg(alcol), 2) as avg_alcohol,
+min(temperatura_servizio) as min_serving_temperature, max(temperatura_servizio) as max_serving_temperature, round(avg(temperatura_servizio), 2) as avg_serving_temperature,
+min(prezzo) as min_price, max(prezzo) as max_price, round(avg(prezzo), 2) as avg_price
+from bianchi
+GROUP by denominazione
+order by denominazione DESC;
+
+-- min/max/avg numeric columns by pairings
+SELECT abbinamenti, 
+min(alcol) as min_alcohol, max(alcol) as max_alcohol, round(avg(alcol), 2) as avg_alcohol,
+min(temperatura_servizio) as min_serving_temperature, max(temperatura_servizio) as max_serving_temperature, round(avg(temperatura_servizio), 2) as avg_serving_temperature,
+min(prezzo) as min_price, max(prezzo) as max_price, round(avg(prezzo), 2) as avg_price
+from bianchi
+GROUP by abbinamenti
+order by abbinamenti DESC;
+
+-- vines production by provenience
+SELECT denominazione, vitigni, count(vitigni) as vines_production
+from bianchi
+group by denominazione, vitigni
+ORDER by denominazione, vines_production DESC
+
+-- avg. range for consumption
+SELECT round(avg(difference), 2) as avg_difference
+FROM
+(SELECT split_part(consumo_ideale, '/', 2)::numeric - split_part(consumo_ideale, '/', 1)::numeric as difference
+from bianchi
+where split_part(consumo_ideale, '/', 2) != '') as new
 
 -- 3 most expensive vines by provenience
 SELECT *
